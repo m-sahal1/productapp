@@ -46,5 +46,25 @@ def list_collection_variations(request, pk):
     return JsonResponse(list(variants), safe=False)
 
 
+def get_category_ids(cat_id):
+    cat_ids=[]
+    category= Category.objects.prefetch_related('category_set').get(id=cat_id)
+    queue=[category]
+
+    while queue:
+        curr_cat=queue.pop(0)
+        cat_ids.append(curr_cat.id)
+        queue+= [subcat for subcat in curr_cat.category_set.all()]
+
+    return cat_ids
+    
+
+def list_category_variations(request,pk):
+    category_ids = get_category_ids(pk)
+    products= Product.objects.filter(category__in = category_ids).prefetch_related('variants','variants__image')
+    variants= Variant.objects.filter(product__in = products).values(
+        'title', 'created_at', 'updated_at', 'available_for_sale', 'price', 'image__source'
+        )
+    return JsonResponse(list(variants), safe=False)
 
 
