@@ -66,5 +66,3 @@ def list_category_variations(request,pk):
         'title', 'created_at', 'updated_at', 'available_for_sale', 'price', 'image__source'
         )
     return JsonResponse(list(variants), safe=False)
-
-
