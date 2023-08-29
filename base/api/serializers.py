@@ -13,7 +13,7 @@ class VariantSerializer(serializers.ModelSerializer):
         fields = ['title','created_at','updated_at', 'available_for_sale', 'price','image']
 
 class ProductSerializer(serializers.ModelSerializer):
-    variants = VariantSerializer(many=True)
+    variants = VariantSerializer(many=True, required= False)
     
     class Meta:
         model = Product
