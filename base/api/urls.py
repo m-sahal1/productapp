@@ -5,7 +5,9 @@ from django.conf.urls.static import static
 from . import views
 
 urlpatterns = [
-    path('token/', views.CustomAuthToken.as_view(), name='custom_token'),
+    path('register/', views.register, name='register'),
+    path('token/', views.CustomAuthToken.as_view(), name='custom-token'),
+    
     path('products/', views.list_products, name='products'),
     path('variants/', views.list_variants, name='variants'),
     path('collections/', views.list_collections, name='collections'),

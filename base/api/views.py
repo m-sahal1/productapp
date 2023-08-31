@@ -2,13 +2,35 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from base.models import Category, Collection, Product, Variant
 from django.contrib.auth.models import User
-from rest_framework.decorators import api_view, permission_classes
+from django.contrib.auth import authenticate
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
-from .serializers import ProductSerializer, VariantSerializer, CollectionSerializer
+from rest_framework.authentication import TokenAuthentication
+from .serializers import ProductSerializer, VariantSerializer, CollectionSerializer, UserSerializer
 
+
+class CustomAuthToken(ObtainAuthToken):
+    def post(self, request, *args, **kwargs):
+        user_email = request.data["email"]
+        user_password = request.data["password"]
+        user= User.objects.get(email=user_email)
+        user = authenticate(request, username=user.username, password =user_password)
+        print(user)
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({"token": token.key, "user_id": user.pk, "email": user.email})
+
+@api_view(['POST'])
+def register(request):
+    serializer = UserSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({'message':'user created'})
+    return Response({'message':'user not created'})
+    
 
 @api_view(["GET"])
+@authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def list_products(request):
     products = Product.objects.prefetch_related("variants", "variants__image").all()
@@ -17,6 +39,7 @@ def list_products(request):
 
 
 @api_view(["GET"])
+@authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def list_variants(request):
     variants = Variant.objects.select_related("image").all()
@@ -25,6 +48,7 @@ def list_variants(request):
 
 
 @api_view(["GET"])
+@authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def list_collections(request):
     collections = Collection.objects.all()
@@ -33,6 +57,7 @@ def list_collections(request):
 
 
 @api_view(["GET"])
+@authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def list_collection_products(request, pk):
     collection = Collection.objects.prefetch_related(
@@ -45,6 +70,7 @@ def list_collection_products(request, pk):
 
 
 @api_view(["GET"])
+@authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def list_collection_variations(request, pk):
     collection = Collection.objects.prefetch_related(
@@ -75,6 +101,7 @@ def get_category_ids(cat_id):
 
 
 @api_view(["GET"])
+@authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def list_category_variations(request, pk):
     category_ids = get_category_ids(pk)
@@ -92,7 +119,8 @@ def list_category_variations(request, pk):
     return Response(variants)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated, IsAdminUser])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAdminUser])
 def create_product(request):
     if request.method == 'POST':
         serializer = ProductSerializer(data=request.data)
@@ -102,7 +130,8 @@ def create_product(request):
         return Response(serializer.errors, status=400)
 
 @api_view(['PUT'])
-@permission_classes([IsAuthenticated, IsAdminUser])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAdminUser])
 def update_product(request, product_id):
     try:
         product = Product.objects.get(pk=product_id)
@@ -117,7 +146,8 @@ def update_product(request, product_id):
         return Response(serializer.errors, status=400)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated, IsAdminUser])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAdminUser])
 def create_variant(request, product_id):
     try:
         product = Product.objects.get(pk=product_id)
@@ -134,7 +164,8 @@ def create_variant(request, product_id):
         return Response(serializer.errors, status=400)
 
 @api_view(['PUT'])
-@permission_classes([IsAuthenticated, IsAdminUser])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAdminUser])
 def update_variant(request, variant_id):
     try:
         variant = Variant.objects.get(pk=variant_id)
@@ -148,11 +179,3 @@ def update_variant(request, variant_id):
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
     
-
-class CustomAuthToken(ObtainAuthToken):
-    def post(self, request, *args, **kwargs):
-        user_email = request.data["email"]
-        user_password = request.data["password"]
-        user = User.objects.get(email=user_email, password=user_password)
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({"token": token.key, "user_id": user.pk, "email": user.email})
