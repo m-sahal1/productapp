@@ -38,7 +38,6 @@ This Django backend application is designed to store and manage various e-commer
   - Updated_at
 
 ## Conditions
-
 - A product can have multiple variants, but a variant can belong to only one product.
 - A variant will always have an associated image.
 - Products can have zero or more images, including variant images.
@@ -101,7 +100,6 @@ This Django backend application is designed to store and manage various e-commer
   - Image
 
 ## Implementation Details
-
 - UI is not implemented; Django admin page is used for CRUD operations.
 - The above functionalities are also available as REST APIs using Django Rest Framework (DRF).
 - The application utilizes Django's user model for user authentication.
@@ -109,9 +107,6 @@ This Django backend application is designed to store and manage various e-commer
 - Create/update operations are restricted to staff users; all other operations are allowed for registered users.
 
 ## Celery Integration
-
 - An API is available to send emails to all users.
 - Emails are sent to all users after a new product is added, with the subject "New product added" and the body containing the new product's title and description.
 - Daily emails are sent to staff users with status updates.
-
-Feel free to customize and expand upon this README as needed for your project.
