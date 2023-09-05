@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'base.apps.BaseConfig',
     'rest_framework',
     'rest_framework.authtoken',
+    'django_celery_beat'
 ]
 
 MIDDLEWARE = [
@@ -136,8 +137,8 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'sahal9212500727@gmail.com'
-EMAIL_HOST_PASSWORD = 'qsfcdkuoexkmanyq'
+EMAIL_HOST_USER = 'sa@gmail.com'
+EMAIL_HOST_PASSWORD = 'qsfuckyoumanyq'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = 'sahal9212500727@gmail.com'
+DEFAULT_FROM_EMAIL = 'sa@gmail.com'

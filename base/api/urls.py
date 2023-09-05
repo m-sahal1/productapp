@@ -19,5 +19,7 @@ urlpatterns = [
     path('update-products/<str:product_id>/', views.update_product),
     path('create-products/<str:product_id>/variants/', views.create_variant),
     path('update-variants/<str:variant_id>/', views.update_variant),
+
+    path('send-emails', views.send_mail_to_all),
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

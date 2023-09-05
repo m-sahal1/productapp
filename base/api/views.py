@@ -7,7 +7,10 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
+from rest_framework import status
 from .serializers import ProductSerializer, VariantSerializer, CollectionSerializer, UserSerializer
+from base.tasks import send_emails_everyone
+from celery import Celery
 
 
 class CustomAuthToken(ObtainAuthToken):
@@ -178,4 +181,35 @@ def update_variant(request, variant_id):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
+    
+@api_view(['POST'])
+def send_mail_to_all(request):
+    subject = request.data.get('subject')
+    message = request.data.get('message')
+    from_email = 'sahal9212500727@gmail.com'
+    task_result = send_emails_everyone.delay(subject, message, from_email)
+    
+    return Response(
+        {'message': 'Email sending task accepted', 'task_id': task_result.id},
+        status=status.HTTP_202_ACCEPTED
+    )
+@api_view(['POST'])
+def send_daily_email_updates_to_staff(request):
+    prod_count= Product.objects.all().count()
+    variant_count = Variant.objects.all().count()
+    cust_count = User.objects.filter(is_staff = False).count()
+
+    categories = Category.objects.all().prefetch_related('product_set')
+    cat_wise_prod_count = "Category Name: \n"
+    for cat in categories:
+        cat_wise_prod_count += f"\t{cat.title}: {cat.product_set.all().count()}\n"
+    subject = "Daily Updates"
+    message = f'''
+    Count of products: {prod_count}\n
+    Count of variants: {variant_count}\n
+    Count of products belonging to each category:\n{cat_wise_prod_count}\n
+    Number of customers: {cust_count}\n
+    '''
+    recipient_emails = list(User.objects.filter(is_staff = True).values_list('email', flat = True))
+    return send_emails_everyone.delay(subject, message, None, recipient_emails )
     

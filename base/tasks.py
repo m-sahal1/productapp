@@ -4,23 +4,24 @@ from django.contrib.auth.models import User
 from base.models import Product, Variant, Category
 
 @shared_task
-def send_email_all(subject, message, from_email):
+def send_emails_everyone(subject, message, from_email):
+    '''To send emails to everyone in the user model'''
     try:
-        recipient_emails = User.objects.all().values_list('email', flat = True)
+        recipient_emails = list(User.objects.all().values_list('email', flat = True))
         send_mail(subject, message, from_email, recipient_emails)
         return True  # Email sent successfully
     except Exception as e:
         # Handle any exceptions, e.g., log the error
         print(f"Email sending failed: {str(e)}")
         return False  # Email sending failed
-    
+
 # Send mails daily to staff users with statuses
     # Count of products
     # Count of variants
     # Count of products belonging to each category
     # Number of customers
 @shared_task
-def send_email_updates_to_staff(subject,  from_email):
+def send_email_updates_to_staff(from_email):
     try:
         prod_count= Product.objects.all().count()
         variant_count = Variant.objects.all().count()
@@ -30,14 +31,14 @@ def send_email_updates_to_staff(subject,  from_email):
         cat_wise_prod_count = "Category Name: \n"
         for cat in categories:
             cat_wise_prod_count += f"{cat.title}: {cat.product_set.all().count()}\n"
-        
+        subject = "Daily Updates"
         message = f'''
         Count of products: {prod_count}\n
         Count of variants: {variant_count}\n
         Count of products belonging to each category: {cat_wise_prod_count}\n
         Number of customers: {cust_count}\n
         '''
-        recipient_emails = User.objects.filter(is_staff = True).values_list('email', flat = True)
+        recipient_emails = list(User.objects.filter(is_staff = True).values_list('email', flat = True))
         send_mail(subject, message, from_email, recipient_emails)
         return True  # Email sent successfully
     except Exception as e:

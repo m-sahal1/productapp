@@ -13,5 +13,14 @@ app = Celery('myapp')
 # the configuration object to child processes.
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
+
+app.conf.beat_schedule = {
+    'my-periodic-task': {
+        'task': 'base.tasks.send_email_updates_to_staff',  # Task path
+        'schedule': 6.0,  # Schedule the task to run every 6 seconds
+        'args': (None,)
+    },
+}
+
 # Load task modules from all registered Django app configs.
-app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
+app.autodiscover_tasks()
