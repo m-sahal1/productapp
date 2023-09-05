@@ -137,8 +137,16 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
+<<<<<<< HEAD
 EMAIL_HOST_USER = 'sa@gmail.com'
 EMAIL_HOST_PASSWORD = 'qsfuckyoumanyq'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = 'sa@gmail.com'
+=======
+EMAIL_HOST_USER = 'sa7@gmail.com'
+EMAIL_HOST_PASSWORD = 'qsfuckyouyq'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = 'sa7@gmail.com'
+>>>>>>> 6159592ba9040d0b1c622c216a44246b99f86c2d
